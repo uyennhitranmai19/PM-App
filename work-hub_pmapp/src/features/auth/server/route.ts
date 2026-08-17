@@ -23,53 +23,63 @@ const app = new Hono()
     "/login",
     zValidator("json", loginSchema),
     async (c) => {
-      const { email, password } = c.req.valid("json");
+      try {
+        const { email, password } = c.req.valid("json");
 
-      const { account } = await createAdminClient();
-      const session = await account.createEmailPasswordSession(
-        email,
-        password,
-      );
+        const { account } = await createAdminClient();
+        const session = await account.createEmailPasswordSession(
+          email,
+          password,
+        );
 
-      setCookie(c, AUTH_COOKIE, session.secret, {
-        path: "/",
-        httpOnly: true,
-        secure: true,
-        sameSite: "strict",
-        maxAge: 60 * 60 * 24 * 30,
-      });
+        setCookie(c, AUTH_COOKIE, session.secret, {
+          path: "/",
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+          maxAge: 60 * 60 * 24 * 30,
+        });
 
-      return c.json({ success: true });
+        return c.json({ success: true });
+      } catch (error: any) {
+        console.error("Login error:", error);
+        return c.json({ error: error?.message || "Failed to login" }, 400);
+      }
     }
   )
   .post(
     "/register",
     zValidator("json", registerSchema),
     async (c) => {
-      const { name, email, password } = c.req.valid("json");
+      try {
+        const { name, email, password } = c.req.valid("json");
 
-      const { account } = await createAdminClient();
-      await account.create(
-        ID.unique(),
-        email,
-        password,
-        name,
-      );
+        const { account } = await createAdminClient();
+        await account.create(
+          ID.unique(),
+          email,
+          password,
+          name,
+        );
 
-      const session = await account.createEmailPasswordSession(
-        email,
-        password,
-      );
+        const session = await account.createEmailPasswordSession(
+          email,
+          password,
+        );
 
-      setCookie(c, AUTH_COOKIE, session.secret, {
-        path: "/",
-        httpOnly: true,
-        secure: true,
-        sameSite: "strict",
-        maxAge: 60 * 60 * 24 * 30,
-      });
+        setCookie(c, AUTH_COOKIE, session.secret, {
+          path: "/",
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+          maxAge: 60 * 60 * 24 * 30,
+        });
 
-      return c.json({ success: true });
+        return c.json({ success: true });
+      } catch (error: any) {
+        console.error("Registration error:", error);
+        return c.json({ error: error?.message || "Failed to register" }, 400);
+      }
     }
   )
   .post("/logout", sessionMiddleware, async (c) => {

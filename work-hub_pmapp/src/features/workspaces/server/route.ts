@@ -83,12 +83,12 @@ const app = new Hono()
         workspaceId,
       );
 
-      return c.json({ 
-        data: { 
-          $id: workspace.$id, 
-          name: workspace.name, 
+      return c.json({
+        data: {
+          $id: workspace.$id,
+          name: workspace.name,
           imageUrl: workspace.imageUrl
-        } 
+        }
       });
     }
   )
@@ -185,7 +185,7 @@ const app = new Hono()
         uploadedImageUrl = `data:image/png;base64,${Buffer.from(arrayBuffer).toString("base64")}`;
       } else {
         uploadedImageUrl = image;
-      } 
+      }
 
       const workspace = await databases.updateDocument(
         DATABASE_ID,
