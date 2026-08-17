@@ -41,9 +41,9 @@ const app = new Hono()
         });
 
         return c.json({ success: true });
-      } catch (error: any) {
+      } catch (error) {
         console.error("Login error:", error);
-        return c.json({ error: error?.message || "Failed to login" }, 400);
+        return c.json({ error: (error as Error)?.message || "Failed to login" }, 400);
       }
     }
   )
@@ -76,9 +76,9 @@ const app = new Hono()
         });
 
         return c.json({ success: true });
-      } catch (error: any) {
+      } catch (error) {
         console.error("Registration error:", error);
-        return c.json({ error: error?.message || "Failed to register" }, 400);
+        return c.json({ error: (error as Error)?.message || "Failed to register" }, 400);
       }
     }
   )
