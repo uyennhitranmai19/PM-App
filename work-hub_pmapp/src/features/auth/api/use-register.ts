@@ -21,18 +21,19 @@ export const useRegister = () => {
       const response = await client.api.auth.register["$post"]({ json });
 
       if (!response.ok) {
-        throw new Error("Failed to register");
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error || "Failed to register");
       }
 
       return await response.json();
     },
     onSuccess: () => {
       toast.success("Registered");
-      router.refresh();
+      router.push("/");
       queryClient.invalidateQueries({ queryKey: ["current"] });
     },
-    onError: () => {
-      toast.error("Failed to register");
+    onError: (error) => {
+      toast.error(error.message || "Failed to register");
     }
   });
 
